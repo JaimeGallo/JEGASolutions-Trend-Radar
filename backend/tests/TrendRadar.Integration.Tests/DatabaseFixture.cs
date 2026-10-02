@@ -5,14 +5,13 @@ namespace TrendRadar.Integration.Tests;
 
 /// <summary>
 /// Crea una base de datos desechable, aplica las migraciones con el rol propietario
-/// y expone una conexión con el rol de aplicación, igual que en producción.
+/// y expone una conexión que actúa con los permisos del rol de aplicación (SET ROLE),
+/// igual que en producción, sin depender de su contraseña.
 /// Requiere PostgreSQL 16: por defecto el de docker compose (puerto 5433);
 /// se puede cambiar con TRENDRADAR_TEST_ADMIN_CONNECTION.
 /// </summary>
 public sealed class DatabaseFixture : IAsyncLifetime
 {
-    public const string AppRolePassword = "trendradar_app_test";
-
     private const string DefaultAdmin =
         "Host=localhost;Port=5433;Database=postgres;Username=trendradar_owner;Password=trendradar_owner_dev";
 
@@ -21,19 +20,19 @@ public sealed class DatabaseFixture : IAsyncLifetime
 
     public string DatabaseName { get; } = $"trendradar_test_{Guid.NewGuid():N}";
 
-    public string OwnerConnection => With(_adminConnection, DatabaseName, null, null);
+    public string OwnerConnection => With(_adminConnection, DatabaseName, null);
 
-    public string AppConnection => With(_adminConnection, DatabaseName, "trendradar_app", AppRolePassword);
+    public string AppConnection => With(_adminConnection, DatabaseName, "-c role=trendradar_app");
 
     public async Task InitializeAsync()
     {
         await using (var admin = new NpgsqlConnection(_adminConnection))
         {
             await admin.OpenAsync();
-            await Exec(admin, $"""
+            await Exec(admin, """
                 DO $$ BEGIN
                     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'trendradar_app') THEN
-                        CREATE ROLE trendradar_app LOGIN PASSWORD '{AppRolePassword}';
+                        CREATE ROLE trendradar_app NOLOGIN;
                     END IF;
                 END $$;
                 """);
@@ -80,17 +79,8 @@ public sealed class DatabaseFixture : IAsyncLifetime
         return c;
     }
 
-    private static string With(string baseConnection, string database, string? user, string? password)
-    {
-        var b = new NpgsqlConnectionStringBuilder(baseConnection) { Database = database };
-        if (user is not null)
-        {
-            b.Username = user;
-            b.Password = password;
-        }
-
-        return b.ConnectionString;
-    }
+    private static string With(string baseConnection, string database, string? options) =>
+        new NpgsqlConnectionStringBuilder(baseConnection) { Database = database, Options = options }.ConnectionString;
 }
 
 [CollectionDefinition(Name)]

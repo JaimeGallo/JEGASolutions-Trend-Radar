@@ -344,7 +344,8 @@ reports (id, kind, period_start, period_end, content jsonb, generated_at, genera
 
 ```sql
 audit_log 📜 (
-  id bigserial PK, occurred_at timestamptz DEFAULT now(),
+  id bigint PK,                              -- asignado por trigger: consecutivo, sin huecos
+  occurred_at timestamptz,                   -- asignado por trigger (clock_timestamp)
   user_id uuid, action text,                 -- CREATE | VERSION | STATUS_CHANGE | LINK | RESOLVE | VERIFY | EXPORT | LOGIN
   entity_type text, entity_id uuid,
   old_value jsonb NULL, new_value jsonb NULL,

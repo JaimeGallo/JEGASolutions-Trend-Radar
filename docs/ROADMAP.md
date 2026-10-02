@@ -26,7 +26,7 @@ Criterio de salida: al menos 10 señales reales registradas antes de que exista 
 
 Criterio de salida: documentos aprobados.
 
-## Fase 2: Esqueleto de arquitectura (1 semana)
+## Fase 2: Esqueleto de arquitectura (implementada el 2026-10-02)
 
 - Solución .NET 10 con capas Domain / Application / Infrastructure / API y proyectos de pruebas.
 - Frontend Vite + React + TypeScript + Tailwind con layout persistente (nav lateral, maestro-detalle, paleta de comandos vacía).
@@ -39,6 +39,12 @@ Criterio de salida: documentos aprobados.
 - UI en español desde el inicio (textos centralizados para no mezclar idiomas).
 
 Criterio de salida: `docker compose up` levanta todo; prueba de integración demuestra que `UPDATE` y `DELETE` sobre `audit_log` fallan a nivel de BD.
+
+Estado:
+- [x] Pruebas de integración: el rol de aplicación y el propietario no pueden hacer `UPDATE`, `DELETE` ni `TRUNCATE` sobre `audit_log`; la verificación detecta alteraciones hechas desactivando triggers; 40 inserciones concurrentes mantienen la cadena válida.
+- [x] Flujo completo verificado en navegador (login, sesión tras recarga, atajos, paleta, integridad, móvil sin scroll horizontal).
+- [ ] `docker compose up` verificado en una máquina con Docker (el entorno donde se construyó no tenía el daemon de Docker; el workflow de CI construye las imágenes).
+- Fuera de esta fase: anclaje externo diario (M6) y cliente TypeScript generado desde OpenAPI (M1).
 
 ## Fase 3: MVP (5 a 7 semanas)
 

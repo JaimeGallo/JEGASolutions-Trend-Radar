@@ -59,7 +59,7 @@ Tareas programadas (alertas de vencimiento, anclaje diario, informes) se ejecuta
 JEGASolutions-Trend-Radar/
 ├── docs/                         # Estos documentos
 ├── backend/
-│   ├── TrendRadar.sln
+│   ├── TrendRadar.slnx
 │   ├── src/
 │   │   ├── TrendRadar.Domain/          # Entidades, value objects, reglas (cronología, rúbricas, fórmulas)
 │   │   ├── TrendRadar.Application/     # Casos de uso, DTOs, validación, puertos (interfaces)
@@ -73,7 +73,7 @@ JEGASolutions-Trend-Radar/
 │       ├── app/            # Rutas, layout persistente, paleta de comandos
 │       ├── features/       # signals, predictions, events, convergences, dashboard, challenge
 │       ├── components/     # UI compartida (paneles, timeline, badges epistémicos)
-│       └── lib/            # cliente API tipado (generado desde OpenAPI), atajos
+│       └── lib/            # cliente API (tipado a mano en Fase 2; generado desde OpenAPI desde M1)
 ├── seed/                   # Casos semilla en JSON versionado
 ├── docker-compose.yml
 └── README.md
@@ -126,6 +126,12 @@ Con el anclaje, Jaime puede demostrar a un tercero que una señal existía en un
 
 ### Período de gracia
 Una predicción puede corregirse durante 15 minutos (errores de digitación). Cada corrección queda en auditoría. Pasado el plazo se bloquea a nivel de BD (`locked_at` no nulo activa el trigger).
+
+### Detalles de implementación (Fase 2)
+- `audit_log` recibe `id`, `occurred_at`, `content_hash` y `chain_hash` de un trigger `BEFORE INSERT` que toma un candado consultivo: los ids son consecutivos y siguen el orden de la cadena. Un hueco o una fila alterada aparecen en `audit_log_verify()`.
+- La API se conecta como `trendradar_app` (solo `SELECT`/`INSERT` en `audit_log`); las migraciones usan `trendradar_owner`.
+- Frontend: React 19, React Router, Tailwind 4, cmdk (paleta), oxlint. Fuentes autoalojadas (Inter, JetBrains Mono). Tema oscuro por defecto.
+- Token de acceso en memoria (15 min); token de renovación rotativo en cookie `HttpOnly`, `SameSite=Strict`, `Path=/api/auth`; reusar un token ya rotado cierra todas las sesiones del usuario.
 
 ## 7. API
 

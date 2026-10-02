@@ -43,16 +43,18 @@ namespace TrendRadar.Infrastructure.Persistence.Migrations
                 $$;
 
                 -- Asigna id, fecha y hashes en el servidor, serializando las inserciones
-                -- para que el orden de la cadena coincida con el orden de los ids.
+                -- para que el orden de la cadena coincida con el de los ids. Los ids son
+                -- consecutivos (sin huecos), así que una entrada eliminada también se nota.
                 CREATE FUNCTION audit_log_before_insert() RETURNS trigger
                 LANGUAGE plpgsql AS $$
                 DECLARE
+                    prev_id bigint;
                     prev bytea;
                 BEGIN
                     PERFORM pg_advisory_xact_lock(74610001);
-                    NEW.id := nextval(pg_get_serial_sequence('audit_log', 'id'));
+                    SELECT id, chain_hash INTO prev_id, prev FROM audit_log ORDER BY id DESC LIMIT 1;
+                    NEW.id := coalesce(prev_id, 0) + 1;
                     NEW.occurred_at := clock_timestamp();
-                    SELECT chain_hash INTO prev FROM audit_log ORDER BY id DESC LIMIT 1;
                     NEW.content_hash := audit_log_content_hash(
                         NEW.occurred_at, NEW.user_id, NEW.action, NEW.entity_type,
                         NEW.entity_id, NEW.old_value, NEW.new_value, NEW.reason);
@@ -88,7 +90,8 @@ namespace TrendRadar.Infrastructure.Persistence.Migrations
                 BEGIN
                     FOR r IN SELECT * FROM audit_log ORDER BY id LOOP
                         n := n + 1;
-                        IF r.content_hash IS DISTINCT FROM audit_log_content_hash(
+                        IF r.id <> n
+                           OR r.content_hash IS DISTINCT FROM audit_log_content_hash(
                                r.occurred_at, r.user_id, r.action, r.entity_type,
                                r.entity_id, r.old_value, r.new_value, r.reason)
                            OR r.chain_hash IS DISTINCT FROM digest(prev || r.content_hash, 'sha256') THEN

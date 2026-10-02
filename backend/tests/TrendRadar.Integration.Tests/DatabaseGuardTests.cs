@@ -28,9 +28,13 @@ public sealed class DatabaseGuardTests(DatabaseFixture db)
         await using var app = await db.OpenAppAsync();
         await InsertAsync(app, "app");
 
+        Assert.Equal("trendradar_app", await DatabaseFixture.Scalar<string>(app, "SELECT current_user::text"));
+
         var ex = await Assert.ThrowsAsync<PostgresException>(() => DatabaseFixture.Exec(app, sql));
 
+        // Rechazado por falta de permisos, antes de llegar al trigger.
         Assert.Equal(PostgresErrorCodes.InsufficientPrivilege, ex.SqlState);
+        Assert.DoesNotContain("inmutable", ex.MessageText, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -112,6 +116,8 @@ public sealed class DatabaseGuardTests(DatabaseFixture db)
 
         await using var app = await db.OpenAppAsync();
         Assert.Null(await FirstInvalidAsync(app));
+        var gaps = await DatabaseFixture.Scalar<long>(app, "SELECT max(id) - count(*) FROM audit_log");
+        Assert.Equal(0, gaps);
     }
 
     private static async Task<long?> FirstInvalidAsync(NpgsqlConnection c)

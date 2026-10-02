@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "docker/**"
+      - "docker-compose.yml"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "docker/**"
+      - "docker-compose.yml"
+      - ".github/workflows/ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: trendradar_owner
+          POSTGRES_PASSWORD: trendradar_owner_dev
+          POSTGRES_DB: postgres
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U trendradar_owner"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: dotnet restore
+      - name: Compilar (advertencias como errores)
+        run: dotnet build --no-restore -c Release
+      - name: Pruebas unitarias y de integración (PostgreSQL real)
+        run: dotnet test --no-build -c Release
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validar docker-compose.yml
+        run: |
+          cp .env.example .env
+          sed -i 's/^JWT_SECRET=$/JWT_SECRET=solo-para-validar-la-configuracion-de-ci/' .env
+          docker compose config -q
+      - name: Construir imágenes
+        run: docker compose build
