@@ -10,6 +10,7 @@ Pregunta central: **¿Puede JEGASolutions convertir la intuición en evidencia m
 - **Fase 1** (Discovery): documentos de diseño en `docs/`.
 - **Fase 2** (esqueleto): backend .NET 10, frontend React en español, autenticación propia y protecciones de integridad en PostgreSQL.
 - **Fase 3, M1** (señales): captura rápida (tecla `N`), registro original inmutable, versiones encadenadas, origen declarado y respaldado, evidencia con nivel E0 a E4, búsqueda e importación de la Fase 0. Predicciones, eventos y convergencias llegan en M2 a M4.
+- **Fase 3, M2** (predicciones): hipótesis por señal; predicciones con criterio de resolución, fecha límite, confianza, tasa base y especificidad; 15 minutos de gracia y luego bloqueo en la base de datos; versiones que no reemplazan a la original; resolución con disputa; retiro con motivo; alertas de vencidas.
 
 ## Ejecutar en local
 

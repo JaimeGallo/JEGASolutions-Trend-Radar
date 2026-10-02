@@ -4,20 +4,38 @@ import { Link } from 'react-router'
 import { EmptyState, Kpi, LayerBadge, Panel } from '../../components/ui'
 import { t } from '../../i18n/es'
 import { fmtRelative } from '../../lib/format'
+import { daysToHorizon, foresightApi, PREDICTIONS_CHANGED, type PredictionPage } from '../../lib/foresight'
 import { SIGNALS_CHANGED, signalsApi, type SignalPage } from '../../lib/signals'
+import { PredictionStatusBadge } from '../predictions/badges'
 import { DomainBadge, RetroBadge, StageBadge } from '../signals/badges'
 
 // Los paneles muestran estados vacíos hasta que existan los módulos de la Fase 3.
 // Nunca se muestran cifras inventadas: sin datos se dice "Sin datos".
 export function RadarPage() {
   const [active, setActive] = useState<SignalPage | null>(null)
+  const [open, setOpen] = useState<PredictionPage | null>(null)
   const [version, setVersion] = useState(0)
 
   useEffect(() => {
     const refresh = () => setVersion((v) => v + 1)
     window.addEventListener(SIGNALS_CHANGED, refresh)
-    return () => window.removeEventListener(SIGNALS_CHANGED, refresh)
+    window.addEventListener(PREDICTIONS_CHANGED, refresh)
+    return () => {
+      window.removeEventListener(SIGNALS_CHANGED, refresh)
+      window.removeEventListener(PREDICTIONS_CHANGED, refresh)
+    }
   }, [])
+
+  useEffect(() => {
+    let alive = true
+    foresightApi
+      .list('open')
+      .then((p) => alive && setOpen(p))
+      .catch(() => alive && setOpen(null))
+    return () => {
+      alive = false
+    }
+  }, [version])
 
   useEffect(() => {
     let alive = true
@@ -33,7 +51,6 @@ export function RadarPage() {
   const panels = [
     { title: t.radar.external, icon: Globe, milestone: 'M3' },
     { title: t.radar.convergences, icon: GitCompareArrows, milestone: 'M4' },
-    { title: t.radar.predictions, icon: Target, milestone: 'M2' },
     { title: t.radar.opportunities, icon: Lightbulb, milestone: 'M5' },
   ]
 
@@ -41,7 +58,7 @@ export function RadarPage() {
     <div className="flex h-full min-h-0 flex-col gap-3 p-3">
       <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
         <Kpi label={t.kpis.activeSignals} value={active ? active.total : null} />
-        <Kpi label={t.kpis.activePredictions} value={null} />
+        <Kpi label={t.kpis.activePredictions} value={open ? open.total : null} />
         <Kpi label={t.kpis.beforeConvergences} value={null} />
         <Kpi label={t.kpis.medianWindow} value={null} />
         <Kpi label={t.kpis.failedRate} value={null} />
@@ -82,6 +99,28 @@ export function RadarPage() {
             </ul>
           ) : (
             <EmptyState icon={<Activity size={22} />} title={t.signals.emptyAll} />
+          )}
+        </Panel>
+        <Panel title={t.radar.predictions} actions={<LayerBadge layer="observation" />} growOnMobile>
+          {open && open.items.length > 0 ? (
+            <ul>
+              {open.items.slice(0, 10).map((p) => (
+                <li key={p.code}>
+                  <Link to={`/predicciones/${p.code}`} className="block border-b border-line px-3 py-2 hover:bg-surface-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[11px] text-gold">{p.code}</span>
+                      <PredictionStatusBadge status={p.status} overdue={p.isOverdue} outcome={p.outcome} />
+                      <span className={`ml-auto text-[11px] ${p.isOverdue ? 'text-danger' : 'text-muted'}`}>
+                        {t.foresight.days(daysToHorizon(p.horizonDate))}
+                      </span>
+                    </div>
+                    <div className="mt-0.5 line-clamp-1 text-sm">{p.statement}</div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyState icon={<Target size={22} />} title={t.foresight.radarEmpty} />
           )}
         </Panel>
         {panels.map((p) => (

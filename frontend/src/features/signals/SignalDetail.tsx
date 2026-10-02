@@ -9,6 +9,7 @@ import { apiBlob, ApiError } from '../../lib/api'
 import { fmtBytes, fmtDate, fmtDateTime } from '../../lib/format'
 import { signalsApi, type Evidence, type SignalDetail as Detail } from '../../lib/signals'
 import { DomainBadge, LevelBadge, RetroBadge, StageBadge, StatusBadge } from './badges'
+import { SignalForesight } from '../predictions/SignalForesight'
 import { ClassifyForm, EvidenceForm, ReviseForm } from './SignalForms'
 
 type Mode = 'revise' | 'classify' | 'evidence' | null
@@ -133,6 +134,10 @@ export function SignalDetail({ code }: { code: string }) {
             ))}
           </ul>
         )}
+      </Section>
+
+      <Section title={t.foresight.section} badge={<LayerBadge layer="interpretation" />}>
+        <SignalForesight signalCode={signal.code} canEdit={canEdit} />
       </Section>
 
       <Section title={t.signals.sections.classification} badge={<LayerBadge layer="interpretation" />}>

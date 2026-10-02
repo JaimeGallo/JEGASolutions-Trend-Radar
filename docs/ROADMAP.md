@@ -53,6 +53,7 @@ Estado:
 |---|---|---|
 | M1 Señales (1,5 sem) | Captura rápida, `recorded_at` de servidor, versiones, origen declarado, evidencia (archivos, URL, commits), códigos TR-XX-NNN, lista + detalle | Señal capturable en < 30 s; pruebas de inmutabilidad pasan; editar crea versión |
 | M2 Predicciones (1 sem) | Hipótesis, predicciones con criterio/horizonte/confianza/tasa base/especificidad, gracia de 15 min, bloqueo, V2, resolución, vencimientos | Trigger rechaza cambios tras bloqueo; V1 y V2 coexisten |
+| | **M2 implementado (2026-10-02).** Gracia de 15 min y bloqueo en la base de datos; versiones en cadena lineal; resoluciones append-only con disputa; retiro con motivo; fotos de cada estado encadenadas (`prediction_snapshots`). | 54 pruebas unitarias y 78 de integración; recorrido en navegador |
 | M3 Radar externo (1 sem) | Eventos, fuentes con tipo y fechas, actores, exposiciones, arte previo | Evento con fuente primaria y fecha intervalo registrado |
 | M4 Convergencias (1,5 sem) | Relación temporal automática, TTC y Anticipation Window, rúbrica, modo ciego, lista anti-sesgo, clasificación, estados | Pruebas unitarias de cronología (todos los casos de §5 de RESEARCH_METHODOLOGY) y de la fórmula `convergence-v1` |
 | M5 Dashboard y modos (1 sem) | KPIs, paneles, línea de tiempo doble, búsqueda/filtros, paleta de comandos y atajos, Challenge Jaime (formulario guiado), "¿Lo vi primero?" (informe) | Pantalla principal sin scroll de página a 1440×900 |

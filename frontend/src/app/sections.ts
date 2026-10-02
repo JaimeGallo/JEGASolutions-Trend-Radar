@@ -24,7 +24,7 @@ export type Section = {
 export const sections: Section[] = [
   { path: '/', label: t.nav.radar, icon: Radar, key: 'r' },
   { path: '/senales', label: t.nav.signals, icon: Activity, key: 's' },
-  { path: '/predicciones', label: t.nav.predictions, icon: Target, key: 'p', milestone: 'M2' },
+  { path: '/predicciones', label: t.nav.predictions, icon: Target, key: 'p' },
   { path: '/eventos', label: t.nav.events, icon: Globe, key: 'e', milestone: 'M3' },
   { path: '/convergencias', label: t.nav.convergences, icon: GitCompareArrows, key: 'c', milestone: 'M4' },
   { path: '/oportunidades', label: t.nav.opportunities, icon: Lightbulb, key: 'o', milestone: 'M5' },

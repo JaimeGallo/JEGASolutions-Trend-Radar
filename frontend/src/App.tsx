@@ -6,6 +6,7 @@ import { LoginPage } from './features/auth/LoginPage'
 import { RadarPage } from './features/dashboard/RadarPage'
 import { IntegrityPage } from './features/integrity/IntegrityPage'
 import { SectionPage } from './features/sections/SectionPage'
+import { PredictionsPage } from './features/predictions/PredictionsPage'
 import { SignalsPage } from './features/signals/SignalsPage'
 
 function AppRoutes() {
@@ -19,6 +20,8 @@ function AppRoutes() {
         <Route index element={<RadarPage />} />
         <Route path="/senales" element={<SignalsPage />} />
         <Route path="/senales/:code" element={<SignalsPage />} />
+        <Route path="/predicciones" element={<PredictionsPage />} />
+        <Route path="/predicciones/:code" element={<PredictionsPage />} />
         <Route path="/integridad" element={user.role === 'Owner' ? <IntegrityPage /> : <Navigate to="/" replace />} />
         {sections
           .filter((s) => s.milestone)

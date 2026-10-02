@@ -150,7 +150,7 @@ hypotheses (
   status text,                                -- OPEN | SUPPORTED | WEAKENED | REFUTED | SUPERSEDED
   provenance text, verification text
 )
-hypothesis_signals (hypothesis_id, signal_id)
+hypothesis_signals (hypothesis_id, signal_id)   -- M2 implementa una sola señal por hipótesis (hypotheses.signal_id)
 
 predictions (
   id uuid PK, code text UNIQUE,               -- PR-0001
@@ -167,12 +167,13 @@ predictions (
   locked_at timestamptz NULL,                  -- recorded_at + 15 min; tras esto, todo 🔒 es definitivo
   supersedes_id uuid NULL FK predictions,      -- V2 apunta a V1; V1 sigue contando
   version int,                                 -- 1, 2, 3...
-  status text                                  -- OPEN | OVERDUE | RESOLVED | WITHDRAWN
+  status text,                                 -- OPEN | RESOLVED | WITHDRAWN ("vencida" se calcula: abierta con fecha límite pasada)
+  withdrawn_at timestamptz NULL, withdrawal_reason text NULL   -- fecha del servidor; motivo obligatorio
 )
 
-prediction_versions 📜 (                       -- foto completa de cada versión (incluidas correcciones en gracia)
-  id uuid PK, prediction_id uuid, version int, snapshot jsonb,
-  change_reason text, created_at timestamptz, created_by uuid,
+prediction_snapshots 📜 (                      -- implementado en M2 (antes "prediction_versions"): foto de CADA estado,
+  id bigint PK, prediction_id uuid, snapshot jsonb, -- escrita por trigger AFTER INSERT/UPDATE, no por la aplicación;
+  created_at timestamptz,                          -- el motivo de cada corrección queda en audit_log
   content_hash bytea, chain_hash bytea
 )
 
