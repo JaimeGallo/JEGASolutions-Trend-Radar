@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TrendRadar.Application.Abstractions;
 using TrendRadar.Domain.Auditing;
 using TrendRadar.Domain.Auth;
+using TrendRadar.Domain.Foresight;
 using TrendRadar.Domain.Signals;
 using TrendRadar.Domain.Taxonomy;
 using TrendRadar.Domain.Users;
@@ -24,6 +25,14 @@ public sealed class TrendRadarDbContext(DbContextOptions<TrendRadarDbContext> op
     public DbSet<SignalVersion> SignalVersions => Set<SignalVersion>();
 
     public DbSet<Evidence> Evidence => Set<Evidence>();
+
+    public DbSet<Hypothesis> Hypotheses => Set<Hypothesis>();
+
+    public DbSet<Prediction> Predictions => Set<Prediction>();
+
+    public DbSet<PredictionResolution> PredictionResolutions => Set<PredictionResolution>();
+
+    public DbSet<PredictionSnapshot> PredictionSnapshots => Set<PredictionSnapshot>();
 
     /// <summary>Envoltorio IMMUTABLE de unaccent definido en la migración Signals (solo para consultas).</summary>
     public static string Unaccent(string input) => throw new NotSupportedException(input);

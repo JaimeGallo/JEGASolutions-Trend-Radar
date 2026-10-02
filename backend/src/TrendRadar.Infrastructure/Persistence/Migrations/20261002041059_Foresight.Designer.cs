@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NpgsqlTypes;
@@ -12,9 +13,11 @@ using TrendRadar.Infrastructure.Persistence;
 namespace TrendRadar.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(TrendRadarDbContext))]
-    partial class TrendRadarDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261002041059_Foresight")]
+    partial class Foresight
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -77,10 +77,14 @@ internal sealed class IntegrityVerifier(TrendRadarDbContext db, TimeProvider tim
         var versions = await db.Database
             .SqlQuery<VerifyRow>($"SELECT checked_entries, first_invalid_id FROM signal_versions_verify()")
             .SingleAsync(ct);
+        var snapshots = await db.Database
+            .SqlQuery<VerifyRow>($"SELECT checked_entries, first_invalid_id FROM prediction_snapshots_verify()")
+            .SingleAsync(ct);
         return new IntegrityReport(
             [
                 new ChainReport("audit_log", audit.CheckedEntries, audit.FirstInvalidId),
                 new ChainReport("signal_versions", versions.CheckedEntries, versions.FirstInvalidId),
+                new ChainReport("prediction_snapshots", snapshots.CheckedEntries, snapshots.FirstInvalidId),
             ],
             time.GetUtcNow());
     }

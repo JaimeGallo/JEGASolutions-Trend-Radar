@@ -40,6 +40,8 @@ public static class DependencyInjection
         services.AddScoped<ISignalStore, SignalStore>();
         services.AddScoped<IDomainLookup, DomainLookup>();
         services.AddScoped<ISignalQueries, SignalQueries>();
+        services.AddScoped<Application.Foresight.IForesightStore, ForesightStore>();
+        services.AddScoped<Application.Foresight.IForesightQueries, ForesightQueries>();
         services.AddSingleton<IEvidenceFileStore, LocalEvidenceFileStore>();
         services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
         services.AddSingleton<IAccessTokenIssuer, JwtAccessTokenIssuer>();
