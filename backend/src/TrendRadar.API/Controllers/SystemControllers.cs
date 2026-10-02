@@ -35,8 +35,11 @@ public sealed class IntegrityController(IIntegrityVerifier verifier) : Controlle
     [HttpGet("verify")]
     public async Task<IntegrityDto> Verify(CancellationToken ct)
     {
-        var r = await verifier.VerifyAuditChainAsync(ct);
-        return new IntegrityDto(r.IsValid, r.CheckedEntries, r.FirstInvalidEntryId, r.VerifiedAt);
+        var r = await verifier.VerifyAsync(ct);
+        return new IntegrityDto(
+            r.IsValid,
+            r.Chains.Select(c => new ChainDto(c.Chain, c.IsValid, c.CheckedEntries, c.FirstInvalidEntryId)).ToList(),
+            r.VerifiedAt);
     }
 }
 

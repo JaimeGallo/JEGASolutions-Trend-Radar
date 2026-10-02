@@ -19,4 +19,6 @@ public sealed record AuditEntryDto(
     long Id, DateTimeOffset OccurredAt, Guid? UserId, string Action, string EntityType,
     string? EntityId, string? OldValue, string? NewValue, string? Reason, string ChainHash);
 
-public sealed record IntegrityDto(bool IsValid, long CheckedEntries, long? FirstInvalidEntryId, DateTimeOffset VerifiedAt);
+public sealed record ChainDto(string Chain, bool IsValid, long CheckedEntries, long? FirstInvalidEntryId);
+
+public sealed record IntegrityDto(bool IsValid, IReadOnlyList<ChainDto> Chains, DateTimeOffset VerifiedAt);

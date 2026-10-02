@@ -10,8 +10,8 @@ namespace TrendRadar.Integration.Tests;
 [Collection(DatabaseTestGroup.Name)]
 public sealed class ApiTests(DatabaseFixture db) : IDisposable
 {
-    private const string OwnerEmail = "jaime@example.com";
-    private const string OwnerPassword = "contraseña-de-prueba-123";
+    private const string OwnerEmail = DatabaseFixture.OwnerEmail;
+    private const string OwnerPassword = DatabaseFixture.OwnerPassword;
 
     private readonly WebApplicationFactory<Program> _factory = new WebApplicationFactory<Program>()
         .WithWebHostBuilder(b => b
@@ -19,9 +19,7 @@ public sealed class ApiTests(DatabaseFixture db) : IDisposable
             .UseSetting("ConnectionStrings:TrendRadar", db.AppConnection)
             .UseSetting("Database:MigrateOnStartup", "false")
             .UseSetting("Auth:JwtSecret", "secreto-de-pruebas-con-mas-de-32-bytes")
-            .UseSetting("Auth:SecureCookies", "false")
-            .UseSetting("Bootstrap:OwnerEmail", OwnerEmail)
-            .UseSetting("Bootstrap:OwnerPassword", OwnerPassword));
+            .UseSetting("Auth:SecureCookies", "false"));
 
     public void Dispose() => _factory.Dispose();
 
@@ -92,7 +90,7 @@ public sealed class ApiTests(DatabaseFixture db) : IDisposable
         var audit = await client.GetFromJsonAsync<List<AuditEntryDto>>("/api/audit?entityType=user");
 
         Assert.True(integrity!.IsValid);
-        Assert.True(integrity.CheckedEntries > 0);
+        Assert.Contains(integrity.Chains, c => c.Chain == "audit_log" && c.CheckedEntries > 0);
         Assert.Contains(audit!, a => a.Action == "LOGIN");
         Assert.All(audit!, a => Assert.Equal(64, a.ChainHash.Length));
     }

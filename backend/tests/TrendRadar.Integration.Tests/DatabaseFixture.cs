@@ -12,6 +12,9 @@ namespace TrendRadar.Integration.Tests;
 /// </summary>
 public sealed class DatabaseFixture : IAsyncLifetime
 {
+    public const string OwnerEmail = "jaime@example.com";
+    public const string OwnerPassword = "contraseña-de-prueba-123";
+
     private const string DefaultAdmin =
         "Host=localhost;Port=5433;Database=postgres;Username=trendradar_owner;Password=trendradar_owner_dev";
 
@@ -46,6 +49,19 @@ public sealed class DatabaseFixture : IAsyncLifetime
             })
             .Build();
         await Infrastructure.DependencyInjection.MigrateAsync(config);
+
+        // Propietario de prueba creado antes de cualquier prueba, para no depender del orden.
+        await using var owner = await OpenOwnerAsync();
+        await using var cmd = new NpgsqlCommand(
+            """
+            INSERT INTO users (id, email, display_name, password_hash, role, is_active)
+            VALUES (@id, @email, 'Jaime Gallo', @hash, 'Owner', true)
+            """,
+            owner);
+        cmd.Parameters.AddWithValue("id", Guid.CreateVersion7());
+        cmd.Parameters.AddWithValue("email", OwnerEmail);
+        cmd.Parameters.AddWithValue("hash", BCrypt.Net.BCrypt.HashPassword(OwnerPassword, 4));
+        await cmd.ExecuteNonQueryAsync();
     }
 
     public async Task DisposeAsync()

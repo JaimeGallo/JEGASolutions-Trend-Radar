@@ -4,6 +4,10 @@ public static class AuditActions
 {
     public const string Create = "CREATE";
     public const string StatusChange = "STATUS_CHANGE";
+    public const string Version = "VERSION";
+    public const string Reclassify = "RECLASSIFY";
+    public const string AddEvidence = "ADD_EVIDENCE";
+    public const string Import = "IMPORT";
     public const string Login = "LOGIN";
     public const string LoginFailed = "LOGIN_FAILED";
     public const string Logout = "LOGOUT";
