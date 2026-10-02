@@ -71,9 +71,16 @@ export function IntegrityPage() {
               )}
               <div>
                 <p className={`font-semibold ${report.isValid ? 'text-ok' : 'text-danger'}`}>
-                  {report.isValid ? t.integrity.valid : t.integrity.invalid(report.firstInvalidEntryId ?? 0)}
+                  {report.isValid ? t.integrity.valid : t.integrity.broken}
                 </p>
-                <p className="text-muted">{t.integrity.checked(report.checkedEntries)}</p>
+                <ul className="text-muted">
+                  {report.chains.map((c) => (
+                    <li key={c.chain}>
+                      <span className="font-mono text-xs">{t.integrity.chains[c.chain] ?? c.chain}</span>:{' '}
+                      {c.isValid ? t.integrity.checked(c.checkedEntries) : t.integrity.invalid(c.firstInvalidEntryId ?? 0)}
+                    </li>
+                  ))}
+                </ul>
                 <p className="font-mono text-xs text-muted">
                   {t.integrity.at}: {dateFmt.format(new Date(report.verifiedAt))}
                 </p>

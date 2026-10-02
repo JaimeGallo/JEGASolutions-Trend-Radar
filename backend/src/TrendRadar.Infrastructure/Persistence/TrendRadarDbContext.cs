@@ -30,6 +30,13 @@ public sealed class TrendRadarDbContext(DbContextOptions<TrendRadarDbContext> op
 
     async Task IUnitOfWork.SaveChangesAsync(CancellationToken ct) => await SaveChangesAsync(ct);
 
+    async Task IUnitOfWork.InTransactionAsync(Func<Task> work, CancellationToken ct)
+    {
+        await using var tx = await Database.BeginTransactionAsync(ct);
+        await work();
+        await tx.CommitAsync(ct);
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TrendRadarDbContext).Assembly);

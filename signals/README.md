@@ -49,6 +49,10 @@ Recomendaciones:
 
 Para verificar un sello manualmente: `pip install opentimestamps-client` y luego `ots verify signals/TR-UX-001.md.ots`.
 
+## Paso a la aplicación (M1)
+
+Desde el hito M1 las señales se registran en Trend Radar (tecla `N`). Este registro se importa una vez con `scripts/importar_senales.py` (ver README principal), que conserva los códigos y adjunta cada archivo y su sello como evidencia. **Después de importar, no crees señales nuevas aquí**: sus códigos chocarían con los que asigna la aplicación. El anclaje externo de la cadena de la aplicación, equivalente a estos sellos, llega en el hito M6.
+
 ## Casos semilla
 
 `TR-UX-001`, `TR-AI-001`, `TR-MUSIC-001`, `TR-BIZ-001` y `TR-CUST-001` son los casos de la sección 41 de la especificación v2.0. Su texto se tomó literalmente de esa especificación. Son **retrospectivos** y el origen declarado está pendiente: el sello de hoy solo demuestra cuándo se registró la afirmación, no cuándo existió la idea.

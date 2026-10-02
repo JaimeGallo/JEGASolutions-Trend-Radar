@@ -35,6 +35,9 @@ public interface IAuditStore
 public interface IUnitOfWork
 {
     Task SaveChangesAsync(CancellationToken ct);
+
+    /// <summary>Ejecuta varias escrituras como una sola transacción: todas o ninguna.</summary>
+    Task InTransactionAsync(Func<Task> work, CancellationToken ct);
 }
 
 public interface IPasswordHasher

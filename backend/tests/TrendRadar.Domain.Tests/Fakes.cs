@@ -49,6 +49,8 @@ internal sealed class FakeStore : IUserStore, IRefreshTokenStore, IAuditStore, I
         Saves++;
         return Task.CompletedTask;
     }
+
+    public Task InTransactionAsync(Func<Task> work, CancellationToken ct) => work();
 }
 
 internal sealed class FakeHasher : IPasswordHasher

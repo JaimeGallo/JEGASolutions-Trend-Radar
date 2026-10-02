@@ -5,7 +5,7 @@ import { t } from '../i18n/es'
 import { toggleTheme } from '../lib/theme'
 import { sections } from './sections'
 
-export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function CommandPalette({ open, onClose, onNewSignal }: { open: boolean; onClose: () => void; onNewSignal?: () => void }) {
   const navigate = useNavigate()
   if (!open) return null
 
@@ -44,10 +44,16 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
             ))}
           </Command.Group>
           <Command.Group heading={t.palette.actions} className="text-[11px] text-muted [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1">
-            <Command.Item disabled className="flex items-center gap-2 rounded-md px-2 py-2 text-sm text-muted opacity-60">
-              <Plus size={15} aria-hidden />
-              {t.palette.newSignal}
-            </Command.Item>
+            {onNewSignal && (
+              <Command.Item
+                onSelect={() => run(onNewSignal)}
+                className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-sm text-ink data-[selected=true]:bg-accent-soft"
+              >
+                <Plus size={15} aria-hidden />
+                <span className="flex-1">{t.palette.newSignal}</span>
+                <kbd>N</kbd>
+              </Command.Item>
+            )}
             <Command.Item
               onSelect={() => run(toggleTheme)}
               className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-sm text-ink data-[selected=true]:bg-accent-soft"

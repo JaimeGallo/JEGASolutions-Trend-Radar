@@ -7,8 +7,8 @@ function isTyping(target: EventTarget | null) {
   return !!el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))
 }
 
-/** Ctrl/Cmd+K abre la paleta; "G" seguido de una letra navega a una sección. */
-export function useShortcuts(openPalette: () => void) {
+/** Ctrl/Cmd+K abre la paleta; "G" + letra navega; "N" registra una señal; "/" va a la búsqueda. */
+export function useShortcuts(openPalette: () => void, openCapture?: () => void) {
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -34,6 +34,19 @@ export function useShortcuts(openPalette: () => void) {
         }
         return
       }
+      if (key === 'n' && openCapture) {
+        e.preventDefault()
+        openCapture()
+        return
+      }
+      if (key === '/') {
+        const search = document.querySelector<HTMLInputElement>('input[data-search]')
+        if (search) {
+          e.preventDefault()
+          search.focus()
+        }
+        return
+      }
       if (key === 'g') {
         awaitingSection = true
         timer = window.setTimeout(() => (awaitingSection = false), 1200)
@@ -45,5 +58,5 @@ export function useShortcuts(openPalette: () => void) {
       window.removeEventListener('keydown', onKey)
       window.clearTimeout(timer)
     }
-  }, [navigate, openPalette])
+  }, [navigate, openPalette, openCapture])
 }

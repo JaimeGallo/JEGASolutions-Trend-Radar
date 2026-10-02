@@ -228,18 +228,23 @@ public sealed partial class SignalService(
 
     private async Task<Result<string>> SaveNewAsync(Signal signal, Guid userId, string? importedFrom, CancellationToken ct)
     {
-        signals.Add(signal);
-        signals.Add(SignalVersion.Original(signal));
-        await unitOfWork.SaveChangesAsync(ct);
-
-        // El código lo asigna la base de datos al insertar; se audita ya con su valor final.
-        audit.Record(
-            userId,
-            importedFrom is null ? AuditActions.Create : AuditActions.Import,
-            "signal",
-            signal.SignalCode,
-            newValue: new { signal.SignalCode, signal.OriginalTitle, signal.RecordedAt, ImportedFrom = importedFrom });
-        await unitOfWork.SaveChangesAsync(ct);
+        // El código lo asigna la base de datos al insertar, así que la auditoría va en un segundo
+        // guardado; la transacción garantiza que no quede una señal sin su entrada de auditoría.
+        await unitOfWork.InTransactionAsync(
+            async () =>
+            {
+                signals.Add(signal);
+                signals.Add(SignalVersion.Original(signal));
+                await unitOfWork.SaveChangesAsync(ct);
+                audit.Record(
+                    userId,
+                    importedFrom is null ? AuditActions.Create : AuditActions.Import,
+                    "signal",
+                    signal.SignalCode,
+                    newValue: new { signal.SignalCode, signal.OriginalTitle, signal.RecordedAt, ImportedFrom = importedFrom });
+                await unitOfWork.SaveChangesAsync(ct);
+            },
+            ct);
         return Result.Ok<string>(signal.SignalCode!);
     }
 
