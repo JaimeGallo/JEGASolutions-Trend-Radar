@@ -30,6 +30,7 @@ Una señal **pre-registrada** (registrada en el sistema antes del evento externo
 
 Notas:
 - La fecha de autor de un commit (`git_author_date`) puede fijarse a mano. La fecha en que GitHub recibió el push (eventos de la API, fecha de PR, fecha de despliegue) no. Siempre que exista, se prefiere la segunda.
+- La fecha de push solo es consultable en la API de eventos de GitHub durante 90 días. Para que sea evidencia duradera hay que capturarla en ese plazo (o usar un sello E4). Por eso el registro de la Fase 0 sella cada señal con OpenTimestamps.
 - Un repositorio clonado con historial reescrito (rebase, squash) puede perder fechas. Se registra la fuente exacta (repo, commit, URL).
 - La evidencia debe mostrar **el contenido específico** de la idea, no solo actividad en esa fecha. Un commit de enero que "toca el layout" no prueba que en enero existiera el patrón de reducción de scroll; hay que mostrar el diff o una captura de esa versión.
 

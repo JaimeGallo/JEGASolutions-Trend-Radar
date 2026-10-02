@@ -91,7 +91,7 @@ Para comparar contra tasa base hay que saber cuántas pistas tenía el álbum, c
 ### A16. Usuario único vs. multiusuario
 Todo está centrado en Jaime, pero hay `created_by`, auditoría y posible segundo evaluador. **Resolución:** modelo multiusuario simple (roles OWNER, REVIEWER, VIEWER) sin multi-tenant. **[DECIDIR]** ¿autenticación propia o SSO de la plataforma JEGASolutions?
 
-### A17. Idioma
+### A17. Idioma (resuelto: UI en español)
 La especificación está en inglés; Jaime trabaja en español; los clientes son de Colombia. **Resolución propuesta:** UI en español, códigos y enums en inglés (`TR-UX-001`, `BEFORE`), búsqueda de texto completo con configuración `simple` + `unaccent` para soportar ambos idiomas. **[DECIDIR]**
 
 ### A18. Confidencialidad de clientes
@@ -131,13 +131,17 @@ No hay URL ni producto concreto. Existen varios productos y bibliotecas con nomb
 | 9. Caso TypeSafe sin afirmaciones no soportadas | [RESEARCH_METHODOLOGY.md](RESEARCH_METHODOLOGY.md) sección 8 |
 | 10. Prevención del sesgo retrospectivo | [RESEARCH_METHODOLOGY.md](RESEARCH_METHODOLOGY.md) sección 6 |
 
-## 7. Decisiones pendientes de Jaime
+## 7. Decisiones
 
-1. Stack propuesto: .NET 10 + React/Vite/TypeScript + PostgreSQL (ver ARCHITECTURE.md). ¿Aprobado?
-2. Autenticación: ¿propia (simple) o integrada al SSO de `jegasolutions-platform`?
-3. Idioma de la UI: ¿español?
-4. TypeSafe: URL exacta y fecha aproximada de la primera exposición.
-5. Fuentes de evidencia interna autorizadas: ¿se puede usar el historial git completo de `jegasolutions-platform` y otros repositorios como evidencia de fechas?
-6. ¿Habrá un segundo evaluador humano para convergencias?
-7. Despliegue: ¿mismo servidor/infra que la plataforma actual o local primero?
-8. ¿Empezar a capturar señales de inmediato en un registro mínimo (archivo en git) mientras se construye el MVP? Recomendado: cada día sin registro es antelación que no se podrá demostrar.
+Tomadas el 2026-10-02:
+- **Stack aprobado:** .NET 10 + React/Vite/TypeScript + PostgreSQL.
+- **Interfaz en español** (A17 resuelto: UI en español, códigos y enums en inglés).
+- **Fase 0 iniciada:** registro de señales en `signals/` con sellos OpenTimestamps.
+
+Pendientes:
+
+1. Autenticación: ¿propia (simple) o integrada al SSO de `jegasolutions-platform`?
+2. TypeSafe: URL exacta y fecha aproximada de la primera exposición.
+3. Fuentes de evidencia interna autorizadas: ¿se puede usar el historial git completo de `jegasolutions-platform` y otros repositorios como evidencia de fechas?
+4. ¿Habrá un segundo evaluador humano para convergencias?
+5. Despliegue: ¿mismo servidor/infra que la plataforma actual o local primero?

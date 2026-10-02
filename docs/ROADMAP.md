@@ -6,14 +6,17 @@
 
 Primero que la **metodología funcione a mano**, luego automatizar. El activo que no se puede recuperar es el tiempo: una señal no registrada hoy no podrá demostrar antelación mañana. Por eso la captura va primero, incluso antes del MVP completo.
 
-## Fase 0: Captura inmediata (opcional, recomendada, 1 día)
+## Fase 0: Captura inmediata (en curso desde 2026-10-02)
 
-Mientras se construye el MVP:
-- Carpeta `signals/` en este repositorio con una plantilla Markdown por señal (título, texto original, contexto, confianza, dominio).
-- Cada señal se sube con `git push`: GitHub registra la fecha (evidencia E3).
-- Al llegar el MVP, se importan con su fecha de push como evidencia de origen y `recorded_at` = fecha de importación.
+Mientras se construye el MVP (instrucciones en `signals/README.md`):
+- [x] Carpeta `signals/` con plantilla Markdown por señal y script `scripts/nueva-senal.sh`.
+- [x] Validador `scripts/validar_senales.py` y workflow `Señales`: falla si se modifica o borra una señal existente; los cambios de opinión van como revisiones `TR-XX-NNN.vN.md`.
+- [x] Sello OpenTimestamps (`.ots`, evidencia E4) generado por GitHub Actions en cada push; anclaje en Bitcoin completado por el workflow semanal `Completar sellos` (requiere que esté en la rama por defecto).
+- [x] Casos semilla de la sec. 41 registrados con el texto literal de la especificación.
+- [ ] Jaime registra al menos 10 señales reales prospectivas.
+- [ ] Al llegar el MVP, importar señales con el `.ots` y la fecha de push como evidencia de origen; `recorded_at` = fecha de importación.
 
-Criterio de salida: Jaime registra al menos 10 señales reales antes de que exista la app.
+Criterio de salida: al menos 10 señales reales registradas antes de que exista la app.
 
 ## Fase 1: Discovery (este entregable)
 
@@ -32,6 +35,7 @@ Criterio de salida: documentos aprobados.
 - Migración inicial: `users`, `domains`, `audit_log`, `integrity_chain` + triggers append-only.
 - CI en GitHub Actions: build, pruebas, lint.
 - `.gitignore` ajustado a .NET + Node.
+- UI en español desde el inicio (textos centralizados para no mezclar idiomas).
 
 Criterio de salida: `docker compose up` levanta todo; prueba de integración demuestra que `UPDATE` y `DELETE` sobre `audit_log` fallan a nivel de BD.
 

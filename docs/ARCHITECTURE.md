@@ -1,6 +1,6 @@
 # ARCHITECTURE: JEGASolutions Trend Radar
 
-> Versión 0.1 (Fase 1, propuesta). Pendiente de aprobación.
+> Versión 0.1 (Fase 1). Stack aprobado el 2026-10-02. Interfaz en español.
 
 ## 1. Decisión resumida
 
