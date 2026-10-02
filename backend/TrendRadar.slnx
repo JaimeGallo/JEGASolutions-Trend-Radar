@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TrendRadar.API/TrendRadar.API.csproj" />
+    <Project Path="src/TrendRadar.Application/TrendRadar.Application.csproj" />
+    <Project Path="src/TrendRadar.Domain/TrendRadar.Domain.csproj" />
+    <Project Path="src/TrendRadar.Infrastructure/TrendRadar.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TrendRadar.Domain.Tests/TrendRadar.Domain.Tests.csproj" />
+    <Project Path="tests/TrendRadar.Integration.Tests/TrendRadar.Integration.Tests.csproj" />
+  </Folder>
+</Solution>

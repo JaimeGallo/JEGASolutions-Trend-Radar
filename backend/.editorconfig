@@ -1,0 +1,17 @@
+root = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+charset = utf-8
+dotnet_sort_system_directives_first = true
+csharp_style_namespace_declarations = file_scoped:warning
+
+# Migraciones generadas por dotnet-ef
+[**/Migrations/*.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
+
+# Pruebas: los nombres con guiones bajos son descriptivos
+[tests/**.cs]
+dotnet_diagnostic.CA1707.severity = none
