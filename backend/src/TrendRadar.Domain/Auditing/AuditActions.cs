@@ -1,0 +1,11 @@
+namespace TrendRadar.Domain.Auditing;
+
+public static class AuditActions
+{
+    public const string Create = "CREATE";
+    public const string StatusChange = "STATUS_CHANGE";
+    public const string Login = "LOGIN";
+    public const string LoginFailed = "LOGIN_FAILED";
+    public const string Logout = "LOGOUT";
+    public const string RefreshTokenReuse = "REFRESH_TOKEN_REUSE";
+}
