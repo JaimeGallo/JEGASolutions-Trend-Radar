@@ -12,6 +12,8 @@ RUN dotnet publish src/TrendRadar.API/TrendRadar.API.csproj -c Release -o /app -
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=build /app .
+# Archivos de evidencia: el volumen hereda este propietario la primera vez.
+RUN mkdir -p /data/evidence && chown app /data/evidence
 USER app
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "TrendRadar.API.dll"]

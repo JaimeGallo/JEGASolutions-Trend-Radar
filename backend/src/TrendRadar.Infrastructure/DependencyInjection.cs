@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using TrendRadar.Application.Abstractions;
 using TrendRadar.Application.Auth;
+using TrendRadar.Application.Signals;
+using TrendRadar.Infrastructure.Files;
 using TrendRadar.Infrastructure.Persistence;
 using TrendRadar.Infrastructure.Persistence.Stores;
 using TrendRadar.Infrastructure.Security;
@@ -35,6 +37,12 @@ public static class DependencyInjection
         services.AddScoped<IAuditReader>(sp => sp.GetRequiredService<AuditStore>());
         services.AddScoped<ITaxonomyReader, TaxonomyReader>();
         services.AddScoped<IIntegrityVerifier, IntegrityVerifier>();
+        services.AddScoped<ISignalStore, SignalStore>();
+        services.AddScoped<IDomainLookup, DomainLookup>();
+        services.AddScoped<ISignalQueries, SignalQueries>();
+        services.AddScoped<Application.Foresight.IForesightStore, ForesightStore>();
+        services.AddScoped<Application.Foresight.IForesightQueries, ForesightQueries>();
+        services.AddSingleton<IEvidenceFileStore, LocalEvidenceFileStore>();
         services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
         services.AddSingleton<IAccessTokenIssuer, JwtAccessTokenIssuer>();
 

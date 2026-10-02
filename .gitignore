@@ -36,3 +36,6 @@ TestResults/
 
 # Frontend
 frontend/dist/
+
+# Archivos de evidencia en desarrollo local
+data/evidence/

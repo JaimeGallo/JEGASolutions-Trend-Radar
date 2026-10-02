@@ -30,12 +30,15 @@ services:
       ConnectionStrings__TrendRadar: Host=db;Database=trendradar;Username=trendradar_app;Password=${DB_APP_PASSWORD}
       ConnectionStrings__TrendRadarMigrations: Host=db;Database=trendradar;Username=trendradar_owner;Password=${DB_OWNER_PASSWORD}
       Database__MigrateOnStartup: 'true'
+      Evidence__StoragePath: /data/evidence
       Auth__JwtSecret: ${JWT_SECRET:?Define JWT_SECRET en .env (32+ caracteres)}
       # Local por HTTP: la cookie no puede ser Secure fuera de localhost.
       Auth__SecureCookies: 'false'
       Bootstrap__OwnerEmail: ${OWNER_EMAIL:-}
       Bootstrap__OwnerName: ${OWNER_NAME:-Jaime Gallo}
       Bootstrap__OwnerPassword: ${OWNER_PASSWORD:-}
+    volumes:
+      - evidence:/data/evidence
     depends_on:
       db:
         condition: service_healthy
@@ -51,3 +54,4 @@ services:
 
 volumes:
   pgdata:
+  evidence:

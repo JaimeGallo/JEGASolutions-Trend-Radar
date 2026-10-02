@@ -75,21 +75,25 @@ signals (
   source_type text 🔒,                       -- OBSERVATION, PROJECT_DECISION, CLIENT_INTERACTION, PROTOTYPE,
                                              -- COMMIT, DOCUMENT, CONVERSATION, MARKET_OBSERVATION, REJECTED_IDEA, EXPERIMENT
   source_reference text NULL,
-  is_retrospective bool 🔒,                  -- true si se registra algo ocurrido antes (ver origen)
+  is_retrospective bool 🔒,                  -- calculado por trigger: declarada, o origen declarado 7+ días antes del registro
   claimed_origin_earliest timestamptz 🔒 NULL,
   claimed_origin_latest   timestamptz 🔒 NULL,
   claimed_origin_precision text 🔒 NULL,
-  verified_origin_at timestamptz NULL,       -- derivado de evidencia; solo puede moverse HACIA ATRÁS con nueva evidencia verificada,
-                                             -- cada cambio auditado; nunca hacia adelante sin motivo
-  verified_origin_level text NULL,           -- E0..E4 (ver RESEARCH_METHODOLOGY)
+  claimed_origin_note text 🔒 NULL,           -- declaración tal como se escribió ("2025-03", "pendiente")
+  declared_retrospective bool 🔒,            -- solo importaciones de la Fase 0
+  imported_from text 🔒 NULL,                 -- p. ej. signals/TR-UX-001.md
+  -- El origen respaldado NO se guarda: se calcula al leer a partir de la evidencia de ORIGEN
+  -- de nivel E2 o superior (OriginAssessment). Así no hay un campo que pueda "moverse".
   domain_id uuid FK domains, subdomain_id uuid NULL FK domains,
   geographic_scope text NULL,
   impact_estimate smallint NULL,             -- 1..5
   relevance_to_jegas smallint NULL,          -- 1..5
   confidentiality text DEFAULT 'INTERNAL',   -- PUBLIC | INTERNAL | CLIENT_CONFIDENTIAL
-  current_version int,
-  search_vector tsvector GENERATED
+  current_version int,                       -- lo mantiene el trigger de signal_versions
+  search_vector tsvector GENERATED           -- to_tsvector('simple', f_unaccent(código + original))
 )
+signal_code_counters (domain_code PK, last_number)  -- contador por dominio; la importación lo hace avanzar
+
 
 signal_versions 📜 (
   id uuid PK, signal_id uuid FK, version int,  -- v1 = registro original, creado junto con la señal
@@ -117,7 +121,7 @@ signal_origin_claims 📜 (                       -- cada afirmación sobre "cu�
 ### 3.3 Evidencia
 
 ```sql
-evidence (
+evidence 📜 (              -- implementado en M1: ligada directamente a una señal (signal_id) con role
   id uuid PK,
   kind text,               -- FILE, SCREENSHOT, URL, GIT_COMMIT, EMAIL, CHAT_MESSAGE, DOCUMENT, NOTE
   description text,
@@ -133,6 +137,7 @@ evidence (
   confidentiality text
 )
 evidence_links (evidence_id, entity_type, entity_id, role)  -- role: SUPPORTS, CONTRADICTS, ORIGIN, RESOLUTION
+                                                             -- pendiente: se introducirá cuando predicciones y eventos tengan evidencia (M2/M3)
 ```
 
 ### 3.4 Hipótesis y predicciones
@@ -145,7 +150,7 @@ hypotheses (
   status text,                                -- OPEN | SUPPORTED | WEAKENED | REFUTED | SUPERSEDED
   provenance text, verification text
 )
-hypothesis_signals (hypothesis_id, signal_id)
+hypothesis_signals (hypothesis_id, signal_id)   -- M2 implementa una sola señal por hipótesis (hypotheses.signal_id)
 
 predictions (
   id uuid PK, code text UNIQUE,               -- PR-0001
@@ -162,12 +167,13 @@ predictions (
   locked_at timestamptz NULL,                  -- recorded_at + 15 min; tras esto, todo 🔒 es definitivo
   supersedes_id uuid NULL FK predictions,      -- V2 apunta a V1; V1 sigue contando
   version int,                                 -- 1, 2, 3...
-  status text                                  -- OPEN | OVERDUE | RESOLVED | WITHDRAWN
+  status text,                                 -- OPEN | RESOLVED | WITHDRAWN ("vencida" se calcula: abierta con fecha límite pasada)
+  withdrawn_at timestamptz NULL, withdrawal_reason text NULL   -- fecha del servidor; motivo obligatorio
 )
 
-prediction_versions 📜 (                       -- foto completa de cada versión (incluidas correcciones en gracia)
-  id uuid PK, prediction_id uuid, version int, snapshot jsonb,
-  change_reason text, created_at timestamptz, created_by uuid,
+prediction_snapshots 📜 (                      -- implementado en M2 (antes "prediction_versions"): foto de CADA estado,
+  id bigint PK, prediction_id uuid, snapshot jsonb, -- escrita por trigger AFTER INSERT/UPDATE, no por la aplicación;
+  created_at timestamptz,                          -- el motivo de cada corrección queda en audit_log
   content_hash bytea, chain_hash bytea
 )
 

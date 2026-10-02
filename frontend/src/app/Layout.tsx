@@ -1,17 +1,21 @@
 import { useCallback, useState } from 'react'
-import { LogOut, Search } from 'lucide-react'
+import { LogOut, Plus, Search } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router'
 import { useAuth } from '../auth/AuthContext'
 import { t } from '../i18n/es'
 import { CommandPalette } from './CommandPalette'
+import { QuickCapture } from './QuickCapture'
 import { sections } from './sections'
 import { useShortcuts } from './useShortcuts'
 
 export function Layout() {
   const { user, logout } = useAuth()
   const [paletteOpen, setPaletteOpen] = useState(false)
+  const [captureOpen, setCaptureOpen] = useState(false)
+  const canCapture = user?.role === 'Owner'
   const openPalette = useCallback(() => setPaletteOpen(true), [])
-  useShortcuts(openPalette)
+  const openCapture = useCallback(() => setCaptureOpen(true), [])
+  useShortcuts(openPalette, canCapture ? openCapture : undefined)
 
   return (
     <div className="flex h-full">
@@ -32,6 +36,18 @@ export function Layout() {
           <span className="hidden flex-1 text-left md:inline">{t.palette.navigation}…</span>
           <kbd className="hidden md:inline">Ctrl K</kbd>
         </button>
+        {canCapture && (
+          <button
+            type="button"
+            onClick={openCapture}
+            title={`${t.signals.newSignal} (N)`}
+            className="mx-2 mb-2 flex items-center gap-2 rounded-md bg-accent px-2 py-1.5 text-white hover:opacity-90"
+          >
+            <Plus size={14} aria-hidden />
+            <span className="hidden flex-1 text-left md:inline">{t.signals.newSignal}</span>
+            <kbd className="hidden border-white/40 text-white/80 md:inline">N</kbd>
+          </button>
+        )}
         <ul className="flex-1 space-y-0.5 overflow-auto px-2">
           {sections.map((s) => (
             <li key={s.path}>
@@ -69,7 +85,12 @@ export function Layout() {
       <main className="flex min-w-0 flex-1 flex-col">
         <Outlet />
       </main>
-      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        onNewSignal={canCapture ? openCapture : undefined}
+      />
+      <QuickCapture open={captureOpen} onClose={() => setCaptureOpen(false)} />
     </div>
   )
 }

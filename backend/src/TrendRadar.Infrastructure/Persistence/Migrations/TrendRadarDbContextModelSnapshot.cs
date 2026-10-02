@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using NpgsqlTypes;
 using TrendRadar.Infrastructure.Persistence;
 
 #nullable disable
@@ -137,6 +138,651 @@ namespace TrendRadar.Infrastructure.Persistence.Migrations
                     b.ToTable("refresh_tokens", (string)null);
                 });
 
+            modelBuilder.Entity("TrendRadar.Domain.Foresight.Hypothesis", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("code");
+
+                    b.Property<string>("Rationale")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("rationale");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("RecordedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recorded_by");
+
+                    b.Property<Guid>("SignalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("signal_id");
+
+                    b.Property<string>("Statement")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("statement");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_hypotheses");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_hypotheses_code");
+
+                    b.HasIndex("RecordedBy")
+                        .HasDatabaseName("ix_hypotheses_recorded_by");
+
+                    b.HasIndex("SignalId")
+                        .HasDatabaseName("ix_hypotheses_signal_id");
+
+                    b.ToTable("hypotheses", (string)null);
+                });
+
+            modelBuilder.Entity("TrendRadar.Domain.Foresight.Prediction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("BaseRate")
+                        .HasColumnType("integer")
+                        .HasColumnName("base_rate");
+
+                    b.Property<string>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("code");
+
+                    b.Property<int>("Confidence")
+                        .HasColumnType("integer")
+                        .HasColumnName("confidence");
+
+                    b.Property<string>("EvidenceSnapshot")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("evidence_snapshot");
+
+                    b.Property<DateOnly>("HorizonDate")
+                        .HasColumnType("date")
+                        .HasColumnName("horizon_date");
+
+                    b.Property<Guid?>("HypothesisId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("hypothesis_id");
+
+                    b.Property<DateTimeOffset>("LockedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("locked_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("RecordedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recorded_by");
+
+                    b.Property<string>("ResolutionCriteria")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("resolution_criteria");
+
+                    b.Property<Guid>("SignalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("signal_id");
+
+                    b.Property<int>("Specificity")
+                        .HasColumnType("integer")
+                        .HasColumnName("specificity");
+
+                    b.Property<string>("Statement")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("statement");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid?>("SupersedesId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("supersedes_id");
+
+                    b.Property<int>("Version")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("version");
+
+                    b.Property<string>("WithdrawalReason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("withdrawal_reason");
+
+                    b.Property<DateTimeOffset?>("WithdrawnAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("withdrawn_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_predictions");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_predictions_code");
+
+                    b.HasIndex("HypothesisId")
+                        .HasDatabaseName("ix_predictions_hypothesis_id");
+
+                    b.HasIndex("RecordedBy")
+                        .HasDatabaseName("ix_predictions_recorded_by");
+
+                    b.HasIndex("SignalId")
+                        .HasDatabaseName("ix_predictions_signal_id");
+
+                    b.HasIndex("SupersedesId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_predictions_supersedes_id");
+
+                    b.HasIndex("Status", "HorizonDate")
+                        .HasDatabaseName("ix_predictions_status_horizon_date");
+
+                    b.ToTable("predictions", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_predictions_base_rate", "base_rate BETWEEN 1 AND 99");
+
+                            t.HasCheckConstraint("ck_predictions_confidence", "confidence BETWEEN 1 AND 99");
+
+                            t.HasCheckConstraint("ck_predictions_specificity", "specificity BETWEEN 1 AND 5");
+                        });
+                });
+
+            modelBuilder.Entity("TrendRadar.Domain.Foresight.PredictionResolution", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("EvidenceUrl")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("evidence_url");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("outcome");
+
+                    b.Property<decimal?>("PartialCredit")
+                        .HasPrecision(3, 2)
+                        .HasColumnType("numeric(3,2)")
+                        .HasColumnName("partial_credit");
+
+                    b.Property<Guid>("PredictionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("prediction_id");
+
+                    b.Property<string>("Rationale")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("rationale");
+
+                    b.Property<DateTimeOffset>("ResolvedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("resolved_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("ResolvedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("resolved_by");
+
+                    b.Property<Guid?>("SupersedesId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("supersedes_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_prediction_resolutions");
+
+                    b.HasIndex("PredictionId")
+                        .HasDatabaseName("ix_prediction_resolutions_prediction_id");
+
+                    b.HasIndex("ResolvedBy")
+                        .HasDatabaseName("ix_prediction_resolutions_resolved_by");
+
+                    b.HasIndex("SupersedesId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_prediction_resolutions_supersedes_id");
+
+                    b.ToTable("prediction_resolutions", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_prediction_resolutions_partial", "(outcome = 'Partial' AND partial_credit BETWEEN 0.05 AND 0.95) OR (outcome <> 'Partial' AND partial_credit IS NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("TrendRadar.Domain.Foresight.PredictionSnapshot", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<byte[]>("ChainHash")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bytea")
+                        .HasColumnName("chain_hash")
+                        .HasDefaultValueSql("'\\x'::bytea");
+
+                    b.Property<byte[]>("ContentHash")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bytea")
+                        .HasColumnName("content_hash")
+                        .HasDefaultValueSql("'\\x'::bytea");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("PredictionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("prediction_id");
+
+                    b.Property<string>("Snapshot")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("snapshot");
+
+                    b.HasKey("Id")
+                        .HasName("pk_prediction_snapshots");
+
+                    b.HasIndex("PredictionId")
+                        .HasDatabaseName("ix_prediction_snapshots_prediction_id");
+
+                    b.ToTable("prediction_snapshots", (string)null);
+                });
+
+            modelBuilder.Entity("TrendRadar.Domain.Signals.Evidence", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("ArtifactTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("artifact_timestamp");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("FileMime")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("file_mime");
+
+                    b.Property<string>("FileName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("file_name");
+
+                    b.Property<string>("FileSha256")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("file_sha256");
+
+                    b.Property<long?>("FileSize")
+                        .HasColumnType("bigint")
+                        .HasColumnName("file_size");
+
+                    b.Property<string>("GitCommit")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("git_commit");
+
+                    b.Property<string>("GitRepo")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("git_repo");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("level");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("RecordedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recorded_by");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("role");
+
+                    b.Property<Guid>("SignalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("signal_id");
+
+                    b.Property<string>("TimestampAuthority")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("timestamp_authority");
+
+                    b.Property<string>("Url")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("url");
+
+                    b.HasKey("Id")
+                        .HasName("pk_evidence");
+
+                    b.HasIndex("RecordedBy")
+                        .HasDatabaseName("ix_evidence_recorded_by");
+
+                    b.HasIndex("SignalId")
+                        .HasDatabaseName("ix_evidence_signal_id");
+
+                    b.ToTable("evidence", (string)null);
+                });
+
+            modelBuilder.Entity("TrendRadar.Domain.Signals.Signal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("ClaimedOriginEarliest")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("claimed_origin_earliest");
+
+                    b.Property<DateTimeOffset?>("ClaimedOriginLatest")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("claimed_origin_latest");
+
+                    b.Property<string>("ClaimedOriginNote")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("claimed_origin_note");
+
+                    b.Property<string>("ClaimedOriginPrecision")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("claimed_origin_precision");
+
+                    b.Property<int?>("ConfidenceAtCreation")
+                        .HasColumnType("integer")
+                        .HasColumnName("confidence_at_creation");
+
+                    b.Property<string>("Confidentiality")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("confidentiality");
+
+                    b.Property<int>("CurrentVersion")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("current_version");
+
+                    b.Property<bool>("DeclaredRetrospective")
+                        .HasColumnType("boolean")
+                        .HasColumnName("declared_retrospective");
+
+                    b.Property<Guid>("DomainId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("domain_id");
+
+                    b.Property<string>("GeographicScope")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("geographic_scope");
+
+                    b.Property<int?>("ImpactEstimate")
+                        .HasColumnType("integer")
+                        .HasColumnName("impact_estimate");
+
+                    b.Property<string>("ImportedFrom")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("imported_from");
+
+                    b.Property<bool>("IsRetrospective")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_retrospective");
+
+                    b.Property<string>("OriginalContext")
+                        .HasColumnType("text")
+                        .HasColumnName("original_context");
+
+                    b.Property<string>("OriginalText")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("original_text");
+
+                    b.Property<string>("OriginalTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("original_title");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("RecordedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recorded_by");
+
+                    b.Property<string>("RecordedTimeZone")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("recorded_tz");
+
+                    b.Property<int?>("RelevanceToJegas")
+                        .HasColumnType("integer")
+                        .HasColumnName("relevance_to_jegas");
+
+                    b.Property<NpgsqlTsVector>("SearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasColumnName("search_vector")
+                        .HasComputedColumnSql("to_tsvector('simple', f_unaccent(coalesce(signal_code, '') || ' ' || original_title || ' ' || original_text || ' ' || coalesce(original_context, '')))", true);
+
+                    b.Property<string>("SignalCode")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("signal_code");
+
+                    b.Property<string>("SourceReference")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("source_reference");
+
+                    b.Property<string>("SourceType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("source_type");
+
+                    b.Property<string>("Stage")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("stage");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid?>("SubdomainId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("subdomain_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_signals");
+
+                    b.HasIndex("RecordedBy")
+                        .HasDatabaseName("ix_signals_recorded_by");
+
+                    b.HasIndex("SearchVector")
+                        .HasDatabaseName("ix_signals_search_vector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
+
+                    b.HasIndex("SignalCode")
+                        .IsUnique()
+                        .HasDatabaseName("ix_signals_signal_code");
+
+                    b.HasIndex("SubdomainId")
+                        .HasDatabaseName("ix_signals_subdomain_id");
+
+                    b.HasIndex("DomainId", "RecordedAt")
+                        .HasDatabaseName("ix_signals_domain_id_recorded_at");
+
+                    b.ToTable("signals", (string)null);
+                });
+
+            modelBuilder.Entity("TrendRadar.Domain.Signals.SignalVersion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<byte[]>("ChainHash")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bytea")
+                        .HasColumnName("chain_hash")
+                        .HasDefaultValueSql("'\\x'::bytea");
+
+                    b.Property<string>("ChangeReason")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("change_reason");
+
+                    b.Property<int?>("Confidence")
+                        .HasColumnType("integer")
+                        .HasColumnName("confidence");
+
+                    b.Property<byte[]>("ContentHash")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bytea")
+                        .HasColumnName("content_hash")
+                        .HasDefaultValueSql("'\\x'::bytea");
+
+                    b.Property<string>("Context")
+                        .HasColumnType("text")
+                        .HasColumnName("context");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("SignalId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("signal_id");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<int>("Version")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_signal_versions");
+
+                    b.HasIndex("CreatedBy")
+                        .HasDatabaseName("ix_signal_versions_created_by");
+
+                    b.HasIndex("SignalId", "Version")
+                        .IsUnique()
+                        .HasDatabaseName("ix_signal_versions_signal_id_version");
+
+                    b.ToTable("signal_versions", (string)null);
+                });
+
             modelBuilder.Entity("TrendRadar.Domain.Taxonomy.SignalDomain", b =>
                 {
                     b.Property<Guid>("Id")
@@ -244,6 +890,142 @@ namespace TrendRadar.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_refresh_tokens_users_user_id");
+                });
+
+            modelBuilder.Entity("TrendRadar.Domain.Foresight.Hypothesis", b =>
+                {
+                    b.HasOne("TrendRadar.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("RecordedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_hypotheses_users_recorded_by");
+
+                    b.HasOne("TrendRadar.Domain.Signals.Signal", null)
+                        .WithMany()
+                        .HasForeignKey("SignalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_hypotheses_signals_signal_id");
+                });
+
+            modelBuilder.Entity("TrendRadar.Domain.Foresight.Prediction", b =>
+                {
+                    b.HasOne("TrendRadar.Domain.Foresight.Hypothesis", null)
+                        .WithMany()
+                        .HasForeignKey("HypothesisId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_predictions_hypotheses_hypothesis_id");
+
+                    b.HasOne("TrendRadar.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("RecordedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_predictions_users_recorded_by");
+
+                    b.HasOne("TrendRadar.Domain.Signals.Signal", null)
+                        .WithMany()
+                        .HasForeignKey("SignalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_predictions_signals_signal_id");
+
+                    b.HasOne("TrendRadar.Domain.Foresight.Prediction", null)
+                        .WithMany()
+                        .HasForeignKey("SupersedesId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_predictions_predictions_supersedes_id");
+                });
+
+            modelBuilder.Entity("TrendRadar.Domain.Foresight.PredictionResolution", b =>
+                {
+                    b.HasOne("TrendRadar.Domain.Foresight.Prediction", null)
+                        .WithMany()
+                        .HasForeignKey("PredictionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_prediction_resolutions_predictions_prediction_id");
+
+                    b.HasOne("TrendRadar.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("ResolvedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_prediction_resolutions_users_resolved_by");
+
+                    b.HasOne("TrendRadar.Domain.Foresight.PredictionResolution", null)
+                        .WithMany()
+                        .HasForeignKey("SupersedesId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_prediction_resolutions_prediction_resolutions_supersedes_id");
+                });
+
+            modelBuilder.Entity("TrendRadar.Domain.Foresight.PredictionSnapshot", b =>
+                {
+                    b.HasOne("TrendRadar.Domain.Foresight.Prediction", null)
+                        .WithMany()
+                        .HasForeignKey("PredictionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_prediction_snapshots_predictions_prediction_id");
+                });
+
+            modelBuilder.Entity("TrendRadar.Domain.Signals.Evidence", b =>
+                {
+                    b.HasOne("TrendRadar.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("RecordedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_evidence_users_recorded_by");
+
+                    b.HasOne("TrendRadar.Domain.Signals.Signal", null)
+                        .WithMany()
+                        .HasForeignKey("SignalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_evidence_signals_signal_id");
+                });
+
+            modelBuilder.Entity("TrendRadar.Domain.Signals.Signal", b =>
+                {
+                    b.HasOne("TrendRadar.Domain.Taxonomy.SignalDomain", null)
+                        .WithMany()
+                        .HasForeignKey("DomainId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_signals_domains_domain_id");
+
+                    b.HasOne("TrendRadar.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("RecordedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_signals_users_recorded_by");
+
+                    b.HasOne("TrendRadar.Domain.Taxonomy.SignalDomain", null)
+                        .WithMany()
+                        .HasForeignKey("SubdomainId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_signals_domains_subdomain_id");
+                });
+
+            modelBuilder.Entity("TrendRadar.Domain.Signals.SignalVersion", b =>
+                {
+                    b.HasOne("TrendRadar.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_signal_versions_users_created_by");
+
+                    b.HasOne("TrendRadar.Domain.Signals.Signal", null)
+                        .WithMany()
+                        .HasForeignKey("SignalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_signal_versions_signals_signal_id");
                 });
 
             modelBuilder.Entity("TrendRadar.Domain.Taxonomy.SignalDomain", b =>

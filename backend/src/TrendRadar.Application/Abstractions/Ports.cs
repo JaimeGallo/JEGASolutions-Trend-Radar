@@ -35,6 +35,9 @@ public interface IAuditStore
 public interface IUnitOfWork
 {
     Task SaveChangesAsync(CancellationToken ct);
+
+    /// <summary>Ejecuta varias escrituras como una sola transacción: todas o ninguna.</summary>
+    Task InTransactionAsync(Func<Task> work, CancellationToken ct);
 }
 
 public interface IPasswordHasher
@@ -51,15 +54,20 @@ public interface IAccessTokenIssuer
     AccessToken Issue(User user);
 }
 
-public sealed record IntegrityReport(long CheckedEntries, long? FirstInvalidEntryId, DateTimeOffset VerifiedAt)
+public sealed record ChainReport(string Chain, long CheckedEntries, long? FirstInvalidEntryId)
 {
     public bool IsValid => FirstInvalidEntryId is null;
 }
 
-/// <summary>Recalcula la cadena de hashes del log de auditoría (ARCHITECTURE §6, capa 3).</summary>
+public sealed record IntegrityReport(IReadOnlyList<ChainReport> Chains, DateTimeOffset VerifiedAt)
+{
+    public bool IsValid => Chains.All(c => c.IsValid);
+}
+
+/// <summary>Recalcula las cadenas de hashes: auditoría y versiones de señales (ARCHITECTURE §6, capa 3).</summary>
 public interface IIntegrityVerifier
 {
-    Task<IntegrityReport> VerifyAuditChainAsync(CancellationToken ct);
+    Task<IntegrityReport> VerifyAsync(CancellationToken ct);
 }
 
 public sealed record AuditQuery(string? EntityType, string? EntityId, int Take);

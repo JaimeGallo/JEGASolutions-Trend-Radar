@@ -14,7 +14,8 @@ Mientras se construye el MVP (instrucciones en `signals/README.md`):
 - [x] Sello OpenTimestamps (`.ots`, evidencia E4) generado por GitHub Actions en cada push; anclaje en Bitcoin completado por el workflow semanal `Completar sellos` (requiere que esté en la rama por defecto).
 - [x] Casos semilla de la sec. 41 registrados con el texto literal de la especificación.
 - [ ] Jaime registra al menos 10 señales reales prospectivas.
-- [ ] Al llegar el MVP, importar señales con el `.ots` y la fecha de push como evidencia de origen; `recorded_at` = fecha de importación.
+- [x] Importación a la app (M1): `scripts/importar_senales.py` conserva el código, adjunta el `.md` (mismo SHA-256 que el `.ots`) con la fecha del commit (E2) y el `.ots` (E0 hasta verificarlo); `recorded_at` = fecha de importación.
+- Tras importar, las señales nuevas se registran solo en la app (crear archivos nuevos en `signals/` haría chocar los códigos). El anclaje externo de la app, equivalente a los `.ots`, llega en M6; conviene adelantarlo.
 
 Criterio de salida: al menos 10 señales reales registradas antes de que exista la app.
 
@@ -52,9 +53,11 @@ Estado:
 |---|---|---|
 | M1 Señales (1,5 sem) | Captura rápida, `recorded_at` de servidor, versiones, origen declarado, evidencia (archivos, URL, commits), códigos TR-XX-NNN, lista + detalle | Señal capturable en < 30 s; pruebas de inmutabilidad pasan; editar crea versión |
 | M2 Predicciones (1 sem) | Hipótesis, predicciones con criterio/horizonte/confianza/tasa base/especificidad, gracia de 15 min, bloqueo, V2, resolución, vencimientos | Trigger rechaza cambios tras bloqueo; V1 y V2 coexisten |
+| | **M2 implementado (2026-10-02).** Gracia de 15 min y bloqueo en la base de datos; versiones en cadena lineal; resoluciones append-only con disputa; retiro con motivo; fotos de cada estado encadenadas (`prediction_snapshots`). | 54 pruebas unitarias y 78 de integración; recorrido en navegador |
 | M3 Radar externo (1 sem) | Eventos, fuentes con tipo y fechas, actores, exposiciones, arte previo | Evento con fuente primaria y fecha intervalo registrado |
 | M4 Convergencias (1,5 sem) | Relación temporal automática, TTC y Anticipation Window, rúbrica, modo ciego, lista anti-sesgo, clasificación, estados | Pruebas unitarias de cronología (todos los casos de §5 de RESEARCH_METHODOLOGY) y de la fórmula `convergence-v1` |
 | M5 Dashboard y modos (1 sem) | KPIs, paneles, línea de tiempo doble, búsqueda/filtros, paleta de comandos y atajos, Challenge Jaime (formulario guiado), "¿Lo vi primero?" (informe) | Pantalla principal sin scroll de página a 1440×900 |
+| | **M1 implementado (2026-10-02).** Además: importación de la Fase 0 (`scripts/importar_senales.py`) conservando códigos, para que no choquen con la numeración de la app. Pendiente movido: cliente TypeScript generado desde OpenAPI (los tipos se mantienen a mano en `frontend/src/lib/signals.ts`). | Captura verificada en navegador; 51 pruebas unitarias y 48 de integración (inmutabilidad, códigos concurrentes, cadenas, API) |
 | M6 Integridad y semilla (0,5 sem) | Cadena de hashes, `/integrity/verify`, anclaje diario en GitHub, exportación, carga de 5 casos semilla sin datos inventados | Verificación de cadena en verde; alterar un registro a mano en BD se detecta |
 
 Fuera del MVP: IA, crawling, informes automáticos, radar de burbujas, grafo, proyectos de cliente.

@@ -8,7 +8,9 @@ Pregunta central: **¿Puede JEGASolutions convertir la intuición en evidencia m
 
 - **Fase 0** (en curso): registro inmutable de señales en [`signals/`](signals/README.md), sellado con OpenTimestamps.
 - **Fase 1** (Discovery): documentos de diseño en `docs/`.
-- **Fase 2** (esqueleto): backend .NET 10, frontend React en español, autenticación propia y protecciones de integridad en PostgreSQL. Las secciones de señales, predicciones, eventos y convergencias llegan en la Fase 3 (MVP).
+- **Fase 2** (esqueleto): backend .NET 10, frontend React en español, autenticación propia y protecciones de integridad en PostgreSQL.
+- **Fase 3, M1** (señales): captura rápida (tecla `N`), registro original inmutable, versiones encadenadas, origen declarado y respaldado, evidencia con nivel E0 a E4, búsqueda e importación de la Fase 0. Predicciones, eventos y convergencias llegan en M2 a M4.
+- **Fase 3, M2** (predicciones): hipótesis por señal; predicciones con criterio de resolución, fecha límite, confianza, tasa base y especificidad; 15 minutos de gracia y luego bloqueo en la base de datos; versiones que no reemplazan a la original; resolución con disputa; retiro con motivo; alertas de vencidas.
 
 ## Ejecutar en local
 
@@ -24,6 +26,17 @@ docker compose up -d --build
 - PostgreSQL: `localhost:5433`
 
 El propietario inicial se crea solo la primera vez, cuando la base de datos no tiene usuarios.
+
+### Importar las señales de la Fase 0
+
+Una sola vez, antes de registrar señales nuevas en la app (así los códigos no chocan):
+
+```bash
+TR_EMAIL=tu-correo TR_PASSWORD=tu-clave python3 scripts/importar_senales.py --dry-run   # revisar
+TR_EMAIL=tu-correo TR_PASSWORD=tu-clave python3 scripts/importar_senales.py
+```
+
+Es idempotente: si se ejecuta otra vez, omite las señales ya importadas.
 
 ### Desarrollo sin Docker para la app
 

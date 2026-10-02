@@ -16,12 +16,8 @@ export type AuditEntry = {
   reason: string | null
   chainHash: string
 }
-export type IntegrityReport = {
-  isValid: boolean
-  checkedEntries: number
-  firstInvalidEntryId: number | null
-  verifiedAt: string
-}
+export type ChainReport = { chain: string; isValid: boolean; checkedEntries: number; firstInvalidEntryId: number | null }
+export type IntegrityReport = { isValid: boolean; chains: ChainReport[]; verifiedAt: string }
 
 export class ApiError extends Error {
   readonly status: number
@@ -68,10 +64,20 @@ export async function refreshSession(): Promise<AuthResponse | null> {
   return refreshing
 }
 
+/** Descarga autenticada de un archivo (las etiquetas <a>/<img> no envían el token). */
+export async function apiBlob(path: string): Promise<Blob> {
+  const send = () =>
+    fetch(path, { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}, credentials: 'same-origin' })
+  let res = await send()
+  if (res.status === 401 && (await refreshSession())) res = await send()
+  if (!res.ok) throw await parseError(res)
+  return res.blob()
+}
+
 export async function api<T>(path: string, init: RequestInit = {}, retry = true): Promise<T> {
   const headers = new Headers(init.headers)
   if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`)
-  if (init.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
+  if (typeof init.body === 'string' && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
 
   const res = await fetch(path, { ...init, headers, credentials: 'same-origin' })
   if (res.status === 401 && retry && !path.startsWith('/api/auth/')) {

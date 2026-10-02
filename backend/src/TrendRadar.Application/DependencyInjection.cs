@@ -10,6 +10,8 @@ public static class DependencyInjection
     {
         services.AddScoped<AuditRecorder>();
         services.AddScoped<AuthService>();
+        services.AddScoped<Signals.SignalService>();
+        services.AddScoped<Foresight.ForesightService>();
         services.AddSingleton(TimeProvider.System);
         return services;
     }

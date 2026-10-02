@@ -69,12 +69,24 @@ internal sealed class TaxonomyReader(TrendRadarDbContext db) : ITaxonomyReader
 
 internal sealed class IntegrityVerifier(TrendRadarDbContext db, TimeProvider time) : IIntegrityVerifier
 {
-    public async Task<IntegrityReport> VerifyAuditChainAsync(CancellationToken ct)
+    public async Task<IntegrityReport> VerifyAsync(CancellationToken ct)
     {
-        var row = await db.Database
+        var audit = await db.Database
             .SqlQuery<VerifyRow>($"SELECT checked_entries, first_invalid_id FROM audit_log_verify()")
             .SingleAsync(ct);
-        return new IntegrityReport(row.CheckedEntries, row.FirstInvalidId, time.GetUtcNow());
+        var versions = await db.Database
+            .SqlQuery<VerifyRow>($"SELECT checked_entries, first_invalid_id FROM signal_versions_verify()")
+            .SingleAsync(ct);
+        var snapshots = await db.Database
+            .SqlQuery<VerifyRow>($"SELECT checked_entries, first_invalid_id FROM prediction_snapshots_verify()")
+            .SingleAsync(ct);
+        return new IntegrityReport(
+            [
+                new ChainReport("audit_log", audit.CheckedEntries, audit.FirstInvalidId),
+                new ChainReport("signal_versions", versions.CheckedEntries, versions.FirstInvalidId),
+                new ChainReport("prediction_snapshots", snapshots.CheckedEntries, snapshots.FirstInvalidId),
+            ],
+            time.GetUtcNow());
     }
 
     private sealed record VerifyRow(long CheckedEntries, long? FirstInvalidId);
