@@ -31,7 +31,8 @@ Criterio de salida: documentos aprobados.
 - Solución .NET 10 con capas Domain / Application / Infrastructure / API y proyectos de pruebas.
 - Frontend Vite + React + TypeScript + Tailwind con layout persistente (nav lateral, maestro-detalle, paleta de comandos vacía).
 - Docker Compose: PostgreSQL 16, API, frontend.
-- Autenticación (según decisión) y roles.
+- Autenticación propia (JWT + BCrypt) y roles OWNER / REVIEWER / VIEWER.
+- Despliegue local con Docker Compose.
 - Migración inicial: `users`, `domains`, `audit_log`, `integrity_chain` + triggers append-only.
 - CI en GitHub Actions: build, pruebas, lint.
 - `.gitignore` ajustado a .NET + Node.

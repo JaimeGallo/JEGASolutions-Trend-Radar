@@ -88,7 +88,7 @@ Para comparar contra tasa base hay que saber cuántas pistas tenía el álbum, c
 ### A15. Entidades sin definir
 `products`, `competitors`, `metrics`, `reviews` aparecen en la sec. 42 sin atributos. **Resolución:** `products` y `competitors` se modelan como `actors` (organizaciones) y `external_events` de tipo PRODUCT_LAUNCH; `metrics` como `score_snapshots`; `reviews` como `reports`. Se evita duplicar conceptos.
 
-### A16. Usuario único vs. multiusuario
+### A16. Usuario único vs. multiusuario (resuelto: autenticación propia)
 Todo está centrado en Jaime, pero hay `created_by`, auditoría y posible segundo evaluador. **Resolución:** modelo multiusuario simple (roles OWNER, REVIEWER, VIEWER) sin multi-tenant. **[DECIDIR]** ¿autenticación propia o SSO de la plataforma JEGASolutions?
 
 ### A17. Idioma (resuelto: UI en español)
@@ -137,11 +137,11 @@ Tomadas el 2026-10-02:
 - **Stack aprobado:** .NET 10 + React/Vite/TypeScript + PostgreSQL.
 - **Interfaz en español** (A17 resuelto: UI en español, códigos y enums en inglés).
 - **Fase 0 iniciada:** registro de señales en `signals/` con sellos OpenTimestamps.
+- **Autenticación propia** por ahora (A16): JWT + BCrypt con roles OWNER, REVIEWER, VIEWER, compatible para migrar luego al SSO de la plataforma.
+- **Despliegue local primero** con Docker Compose.
 
 Pendientes:
 
-1. Autenticación: ¿propia (simple) o integrada al SSO de `jegasolutions-platform`?
-2. TypeSafe: URL exacta y fecha aproximada de la primera exposición.
-3. Fuentes de evidencia interna autorizadas: ¿se puede usar el historial git completo de `jegasolutions-platform` y otros repositorios como evidencia de fechas?
-4. ¿Habrá un segundo evaluador humano para convergencias?
-5. Despliegue: ¿mismo servidor/infra que la plataforma actual o local primero?
+1. TypeSafe: URL exacta y fecha aproximada de la primera exposición.
+2. Fuentes de evidencia interna autorizadas: ¿se puede usar el historial git completo de `jegasolutions-platform` y otros repositorios como evidencia de fechas?
+3. ¿Habrá un segundo evaluador humano para convergencias?

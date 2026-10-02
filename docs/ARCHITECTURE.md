@@ -14,7 +14,7 @@ Revisé el repositorio `jegasolutions-platform` (estado al 20-09-2026). Hallazgo
 |---|---|---|
 | Backend | ASP.NET Core net8.0 (18 proyectos) y net9.0 (10 proyectos), capas API / Domain / Application / Infrastructure / Data | ASP.NET Core **.NET 10 LTS**, misma estructura de capas. .NET 8 y .NET 9 terminan soporte en noviembre de 2026; .NET 10 tiene soporte hasta noviembre de 2028 |
 | ORM / BD | EF Core + Npgsql, `EFCore.NamingConventions` (snake_case), PostgreSQL 15 en Docker | EF Core 10 + Npgsql, snake_case, **PostgreSQL 16** (necesario para pgvector moderno y mejor rendimiento) |
-| Auth | JWT (`JwtBearer`, `System.IdentityModel.Tokens.Jwt`), BCrypt, guía de SSO | JWT compatible con el SSO de la plataforma; ver decisión pendiente en DISCOVERY.md |
+| Auth | JWT (`JwtBearer`, `System.IdentityModel.Tokens.Jwt`), BCrypt, guía de SSO | **Autenticación propia** (decidido): JWT + BCrypt con los mismos paquetes; claims compatibles para migrar al SSO de la plataforma más adelante |
 | Frontend | React 18 + Vite 5 + Tailwind 3 + Recharts + lucide-react + axios + react-router | React + Vite + Tailwind + Recharts + lucide-react, **con TypeScript** (el modelo de datos tiene muchos estados y enums; los tipos evitan errores de integridad en la UI) |
 | IA | `IAIProvider` + `MultiAIService` con OpenAI, Anthropic, DeepSeek, Groq, Ollama en report-builder | Reutilizar el mismo patrón de interfaz (copiado y adaptado, no compartido como paquete por ahora) y añadir embeddings |
 | Pruebas | xUnit + coverlet | xUnit + Testcontainers (PostgreSQL real para probar triggers de inmutabilidad) |
@@ -183,18 +183,25 @@ Reglas:
 
 ## 11. Seguridad
 
-- JWT de corta duración + refresh token; contraseñas con BCrypt (o SSO de la plataforma).
+- Autenticación propia: JWT de corta duración + refresh token; contraseñas con BCrypt. Migración al SSO de la plataforma posible más adelante.
 - Roles OWNER / REVIEWER / VIEWER con políticas en ASP.NET.
 - Archivos de evidencia: verificación de tipo, tamaño máximo, hash SHA-256 guardado al subir; descarga solo autenticada.
 - Secretos por variables de entorno (`.env` fuera de git), igual que la plataforma.
 - CORS restringido al dominio del frontend.
 
-## 12. Observabilidad y respaldo
+## 12. Despliegue
+
+Decidido: **local primero**. `docker compose up` levanta PostgreSQL, API y frontend en la máquina de Jaime. Consecuencias:
+- El respaldo depende del equipo local: `pg_dump` diario a una carpeta sincronizada (por ejemplo OneDrive o Google Drive) y la exportación JSON.
+- El anclaje diario de integridad en GitHub sigue funcionando desde local y es lo que da fechas verificables por terceros, ya que el reloj del equipo local no lo es.
+- Pasar a servidor (la infraestructura de la plataforma) no requiere cambios de código, solo variables de entorno.
+
+## 13. Observabilidad y respaldo
 
 - Logs estructurados (Serilog o el logging de la plataforma), sin contenido de señales en logs.
 - `pg_dump` diario cifrado; prueba de restauración mensual documentada.
 - La exportación JSON completa (`/api/export`) sirve también como respaldo legible.
 
-## 13. Lo que deliberadamente NO se incluye
+## 14. Lo que deliberadamente NO se incluye
 
 Kubernetes, microservicios, colas de mensajes, Elasticsearch, base vectorial dedicada, GraphQL, base de datos de grafos (el grafo se modela con `entity_links` en PostgreSQL y se visualiza en el frontend), Redis. Se reevaluará solo si un requisito medido lo exige.
